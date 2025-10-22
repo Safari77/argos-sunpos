@@ -94,6 +94,52 @@ if data:
     else:
         print("Sunset: None")
 
+    # Day type indicator with daylight info
+    if 'day_type' in data:
+        day_types = {
+            'normal': '☀️ Normal day',
+            'short_day': '🌄 Short day',
+            'polar_day': '☀️ Polar day (sun does not set)',
+            'polar_night_civil_twilight': '🌆 Polar night (civil twilight)',
+            'polar_night_nautical_twilight': '🌃 Polar night (nautical twilight)',
+            'polar_night_astronomical_twilight': '🌌 Polar night (astronomical twilight)',
+            'polar_night_total': '🌑 Polar night (total darkness)'
+        }
+        print("---")
+        print(day_types.get(data['day_type'], data['day_type']))
+
+        # Show daylight duration and polar end dates
+        if data['day_type'] == 'polar_day' and 'daylight_duration' in data:
+            print(f"Daylight: {data['daylight_duration']['formatted']}")
+
+        if 'polar_ends' in data:
+            if 'formatted' in data['polar_ends']:
+                print(f"{data['polar_ends']['formatted']} ({data['polar_ends']['date']})")
+            elif 'note' in data['polar_ends']:
+                print(f"{data['polar_ends']['note']}")
+        elif data['day_type'] in ['normal', 'short_day'] and 'daylight_duration' in data:
+            # Handle both formatted and note cases
+            if 'formatted' in data['daylight_duration']:
+                print(f"Daylight: {data['daylight_duration']['formatted']}")
+            elif 'note' in data['daylight_duration']:
+                print(f"Daylight: {data['daylight_duration']['note']}")
+
+            # Show tomorrow's change
+            if 'daylight_change' in data:
+                if 'formatted' in data['daylight_change']:
+                    print(f"Tomorrow: {data['daylight_change']['formatted']}")
+                elif 'note' in data['daylight_change']:
+                    print(f"Tomorrow: {data['daylight_change']['note']}")
+
+
+    # Config info
+    timezone = None
+    if 'config' in data:
+        print("---")
+        print(f"Location: lat={data['config']['latitude']:.2f}°, lon={data['config']['longitude']:.2f}°, alt={data['config']['altitude']:.0f} m")
+        timezone = data['config']['timezone']
+        print(f"Timezone: {timezone}")
+
     # Solar irradiance
     if 'irradiance' in data:
         print("---")
@@ -141,47 +187,7 @@ if data:
         else:
             print(f"Irradiance: Error - {irr['error']}")
 
-    # Day type indicator with daylight info
-    if 'day_type' in data:
-        day_types = {
-            'normal': '☀️ Normal day',
-            'short_day': '🌄 Short day',
-            'polar_day': '☀️ Polar day (sun does not set)',
-            'polar_night_civil_twilight': '🌆 Polar night (civil twilight)',
-            'polar_night_nautical_twilight': '🌃 Polar night (nautical twilight)',
-            'polar_night_astronomical_twilight': '🌌 Polar night (astronomical twilight)',
-            'polar_night_total': '🌑 Polar night (total darkness)'
-        }
-        print("---")
-        print(day_types.get(data['day_type'], data['day_type']))
 
-        # Show daylight duration and polar end dates
-        if data['day_type'] == 'polar_day' and 'daylight_duration' in data:
-            print(f"Daylight: {data['daylight_duration']['formatted']}")
-
-        if 'polar_ends' in data:
-            if 'formatted' in data['polar_ends']:
-                print(f"{data['polar_ends']['formatted']} ({data['polar_ends']['date']})")
-            elif 'note' in data['polar_ends']:
-                print(f"{data['polar_ends']['note']}")
-        elif data['day_type'] in ['normal', 'short_day'] and 'daylight_duration' in data:
-            # Handle both formatted and note cases
-            if 'formatted' in data['daylight_duration']:
-                print(f"Daylight: {data['daylight_duration']['formatted']}")
-            elif 'note' in data['daylight_duration']:
-                print(f"Daylight: {data['daylight_duration']['note']}")
-
-            # Show tomorrow's change
-            if 'daylight_change' in data:
-                if 'formatted' in data['daylight_change']:
-                    print(f"Tomorrow: {data['daylight_change']['formatted']}")
-                elif 'note' in data['daylight_change']:
-                    print(f"Tomorrow: {data['daylight_change']['note']}")
-
-    # Config info
-    if 'config' in data:
-        print("---")
-        print(f"Location: lat={data['config']['latitude']:.2f}°, lon={data['config']['longitude']:.2f}°, alt={data['config']['altitude']:.2f} m")
 else:
     print("☀️ --")
     print("---")
